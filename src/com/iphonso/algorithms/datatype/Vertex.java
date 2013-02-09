@@ -2,9 +2,6 @@ package com.iphonso.algorithms.datatype;
 
 import java.util.ArrayList;
 
-import com.iphonso.algorithms.Dijkstra.Connection;
-import com.iphonso.algorithms.Dijkstra.Vertex;
-
 /*
  * Data structure:
  * Array of edges (from 0 to n)
