@@ -6,75 +6,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
 
+import com.iphonso.algorithms.datatype.Connection;
+import com.iphonso.algorithms.datatype.Vertex;
+
 
 public class Dijkstra {
-	/*
-	 * Data structure:
-	 * Array of edges (from 0 to n)
-	 * Edge is a class with:
-	 * 		Array of connections
-	 * Connection (inner class of Edge):
-	 * 		Edge nr.
-	 * 		Weight
-	 */
-	public class Vertex {
-		private final ArrayList<Connection> mConnections = new ArrayList<Connection>();
-		private boolean mVisited;
-		private int mWeight;
-		private final int mNr;
-		private Vertex mParent;
-
-		public Vertex(int nr) {
-			mWeight = Integer.MAX_VALUE;
-			mNr = nr;
-		}
-		
-		public int getNr() {
-			return mNr;
-		}
-
-		public int getWeight() {
-			return mWeight;
-		}
-
-		public void setWeight(int weight) {
-			this.mWeight = weight;
-		}
-
-		public ArrayList<Connection> getConnections() {
-			return mConnections;
-		}
-
-		public boolean isVisited() {
-			return mVisited;
-		}
-
-		public void setVisited(boolean visited) {
-			this.mVisited = visited;
-		}
-
-		public void setParent(Vertex currentVertex) {
-			mParent = currentVertex;
-		}
-
-		public Vertex getParent() {
-			return mParent;
-		}
-
-	}
-
-	public class Connection  {
-		Vertex vertex;
-		int mWeight;
-		public Connection(Vertex v, int weight) {
-			vertex = v;
-			mWeight = weight;
-		}
-
-		public int getWeight() {
-			return mWeight;
-		}
-	}
 	
 	public final Vertex vertexs[]; // Our graph is a list of edges at the end
 	private final int mOriginIndex, mEndIndex;
@@ -134,13 +70,9 @@ public class Dijkstra {
 		currentVertex.setVisited(true);
 		for (int i = 0; i < currentVertex.getConnections().size(); i++) {
 			Connection c = currentVertex.getConnections().get(i);
-			Vertex visitedVertex = c.vertex;
+			Vertex visitedVertex = c.getVertex();
 			int weight = currentVertex.getWeight() + c.getWeight();
 
-			if (currentVertex.getNr() == 7) {
-				int a = 0;
-				a++;
-			}
 			if (visitedVertex.getWeight() > weight) {
 				visitedVertex.setWeight(weight);
 				visitedVertex.setParent(currentVertex);
