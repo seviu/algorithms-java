@@ -52,6 +52,8 @@ public class HuffmanCoding {
 	
 	public void encode(String e) throws IOException {
 		
+		System.out.println("Encode " + e.length() + "bytes");
+		
 		// we first compute the probability for each char to appear
 		Arrays.fill(distributionTable, 0);
 		Arrays.fill(encodingTable, -1);
@@ -116,12 +118,16 @@ public class HuffmanCoding {
 			}
 		}
 		BitOutputStream bos = new BitOutputStream();
+		int iii = 0;
 		for (int i = 0; i < e.length(); i++) {
 			char c = e.charAt(i);
 			int encoded = encodingTable[c] ;
 			length = encodingLengthTable[c] ;
+			iii += length;
 			bos.write(encoded, length);
 		}
+		bos.flush();
+		System.out.println("LENGTH IS " + iii);
 		bos.print();
 		
 	}

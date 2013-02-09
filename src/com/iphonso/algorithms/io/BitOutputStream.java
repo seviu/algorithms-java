@@ -17,7 +17,7 @@ public class BitOutputStream extends OutputStream {
    
 	private ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	byte currentByte = 0;
-	int remainingBits = BITS_PER_BYTE;
+	public int remainingBits = BITS_PER_BYTE;
 	
 	@Override
 	public void write(int b) throws IOException {
@@ -56,6 +56,7 @@ public class BitOutputStream extends OutputStream {
 	
 	public void flush() {
 		bos.write(currentByte);
+		currentByte = 0;
 	}
 	
 	public void close() throws IOException {
@@ -64,6 +65,7 @@ public class BitOutputStream extends OutputStream {
 	}
 	public static void print(ByteArrayOutputStream bos) {
 		byte[] ba = bos.toByteArray();
+			System.out.println("Number of bytes: " + ba.length);
 		for (int i = 0; i < ba.length; i++) {
 			System.out.print(Integer.toBinaryString(ba[i] & 0xff));
 		}
