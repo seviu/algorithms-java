@@ -6,9 +6,10 @@ import java.util.*;
 import com.iphonso.algorithms.io.BitOutputStream;
 
 public class HuffmanCoding {
-	private int distributionTable[];
-	private int encodingTable[];
-	private int encodingLengthTable[];
+	private int mDistributionTable[];
+	private int mEncodingTable[];
+	private int mEncodingLengthTable[];
+	private Node mTree;
 	
 	private class NodeComparator implements Comparator<Node> {
 
@@ -45,9 +46,9 @@ public class HuffmanCoding {
 	
 	
 	public HuffmanCoding() {
-		distributionTable = new int[256];
-		encodingTable = new int[256];
-		encodingLengthTable = new int[256];
+		mDistributionTable = new int[256];
+		mEncodingTable = new int[256];
+		mEncodingLengthTable = new int[256];
 	}
 	
 	public void encode(String e) throws IOException {
@@ -55,20 +56,20 @@ public class HuffmanCoding {
 		System.out.println("Encode " + e.length() + "bytes");
 		
 		// we first compute the probability for each char to appear
-		Arrays.fill(distributionTable, 0);
-		Arrays.fill(encodingTable, -1);
-		Arrays.fill(encodingLengthTable, -1);
+		Arrays.fill(mDistributionTable, 0);
+		Arrays.fill(mEncodingTable, -1);
+		Arrays.fill(mEncodingLengthTable, -1);
 		
 		
 		for (char i = 0; i < e.length(); i++) {
-			distributionTable[e.charAt(i)]++;
+			mDistributionTable[e.charAt(i)]++;
 		}
 		
 		// Now, using a priority queue, we insert all the elements in order (lower probability first)
 		PriorityQueue<Node> nodes = new PriorityQueue<Node>(255, new NodeComparator());
 		for (char i = 0; i < 255; i++) {
-			if (distributionTable[i] > 0) {
-				Node n = new Node(i, distributionTable[i]);
+			if (mDistributionTable[i] > 0) {
+				Node n = new Node(i, mDistributionTable[i]);
 				nodes.add(n);
 			}
 		}
@@ -93,6 +94,8 @@ public class HuffmanCoding {
 		// Now we have the encoding tree, lets make the lookup table;
 		int val = 0;
 		int length = 0;
+		// It is probably not a good idea to get rid of the tree
+		mTree = tree; // lets copy it (we want to decode sometimes)
 		while (tree != null) {
 			Node n0 = tree.child0;
 			Node n1 = tree.child1;
@@ -101,41 +104,38 @@ public class HuffmanCoding {
 			val = val << 1;
 			
 			if (n0 != null && n0.weight > 0) {
-				encodingTable[n0.c] = val;
-				encodingLengthTable[n0.c] = length;
+				mEncodingTable[n0.c] = val;
+				mEncodingLengthTable[n0.c] = length;
 			}
 			val = val | 1;
 			if (n1 != null && n1.weight > 0) {
-				encodingTable[n1.c] = val;
-				encodingLengthTable[n1.c] = length;
+				mEncodingTable[n1.c] = val;
+				mEncodingLengthTable[n1.c] = length;
 			}
 			tree = n1;
 		}
 		
-		for (int i = 0; i < 255; i++) {
-			if (encodingTable[i] >= 0) {
-				System.out.println("Char " + (char)i + " val " + Integer.toBinaryString(encodingTable[i]) + " length " + encodingLengthTable[i]);
-			}
-		}
+		// Lets print the lookup table values for posterity
+		//		for (int i = 0; i < 255; i++) {
+		//			if (encodingTable[i] >= 0) {
+		//				System.out.println("Char " + (char)i + " val " + Integer.toBinaryString(encodingTable[i]) + " length " + encodingLengthTable[i]);
+		//			}
+		//		}
+		
+		// We use the lookup table to encode the whole thing
 		BitOutputStream bos = new BitOutputStream();
-		int iii = 0;
 		for (int i = 0; i < e.length(); i++) {
 			char c = e.charAt(i);
-			int encoded = encodingTable[c] ;
-			length = encodingLengthTable[c] ;
-			iii += length;
+			int encoded = mEncodingTable[c] ;
+			length = mEncodingLengthTable[c] ;
 			bos.write(encoded, length);
 		}
 		bos.flush();
-		System.out.println("LENGTH IS " + iii);
 		bos.print();
-		
 	}
 	
 	public static void main(String args[]) throws IOException {
 		HuffmanCoding hc = new HuffmanCoding();
 		hc.encode("el perro de san roque no tiene rabo");
 	}
-	
-	
 }
