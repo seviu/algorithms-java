@@ -17,6 +17,7 @@ public class BitOutputStream extends OutputStream {
    
 	private ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	byte currentByte = 0;
+	boolean flushed;
 	public int remainingBits = BITS_PER_BYTE;
 	
 	@Override
@@ -25,6 +26,7 @@ public class BitOutputStream extends OutputStream {
 		bos.write(currentByte);
 		currentByte = (byte) (b & bitmask[BITS_PER_BYTE]);
 		bos.write(currentByte);
+		flushed = false;
 	}
 	
 	public void write(int i, int nbits) {
@@ -52,11 +54,15 @@ public class BitOutputStream extends OutputStream {
 			i1 = (byte) (i & bitmask[toShift]); // left part
 			write(i1, toShift); // write the remaining (which could be bigger= than 8)
 		}
+		flushed = false;
 	}
 	
 	public void flush() {
-		bos.write(currentByte);
-		currentByte = 0;
+		if (!flushed) {
+			bos.write(currentByte);
+			currentByte = 0;
+		}
+		flushed = true;
 	}
 	
 	public void close() throws IOException {
@@ -104,6 +110,10 @@ public class BitOutputStream extends OutputStream {
 //		fbos.flush();
 //		bos.print(baos);
 //		
+	}
+
+	public byte[] toByteArray() {
+		return bos.toByteArray();
 	}
 
 }

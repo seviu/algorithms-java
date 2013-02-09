@@ -11,6 +11,12 @@ public class HuffmanCoding {
 	private int mEncodingLengthTable[];
 	private Node mTree;
 	
+	public class HuffmanCodingData {
+		public Node huffmanCodingTree; // the tree used to decode / encode
+		public byte[] encodedData; // the data we might want to decode later
+		public int trailingBits; // bits at the end of the encoded data array which we do not use
+	}
+	
 	private class NodeComparator implements Comparator<Node> {
 
 		@Override
@@ -21,10 +27,8 @@ public class HuffmanCoding {
 	}
 	private class Node  {
 		public char c;
-		public int weight;
+		public int weight; // if weight is < 0 then this node is an intermediate node
 		
-		public short encodedValue;
-		public Node parent;
 		public Node child0, child1;
 		
 		public Node() {
@@ -51,7 +55,39 @@ public class HuffmanCoding {
 		mEncodingLengthTable = new int[256];
 	}
 	
-	public void encode(String e) throws IOException {
+	
+	public String decode(HuffmanCodingData data) {
+		final int bmask[] = {1,2,4,8,16,32,64,128};
+		
+		Node huffmanCodingTree = data.huffmanCodingTree;
+		byte[] info = data.encodedData;
+		int trailingBits = data.trailingBits;
+		
+		StringBuffer ret = new StringBuffer(); // maybe an output stream would be better
+		Node currentNode = huffmanCodingTree; // current node is our state right now
+		for (int i = 0; i < info.length; i++) {
+			byte b = info[i];
+			int bitsToIgnore = 0;
+			if (i == (info.length-1)) {
+				bitsToIgnore = trailingBits;
+			}
+			for (int j = 7; j >= bitsToIgnore; j--) {
+				int masked = b & bmask[j];
+				if (masked != 0) {
+					currentNode = currentNode.child1;
+				} else {
+					currentNode = currentNode.child0;
+				}
+				if (currentNode.weight != -1) {
+					ret.append(currentNode.c);
+					currentNode = huffmanCodingTree;
+				}
+			}
+		}
+		return ret.toString();
+	}
+	
+	public HuffmanCodingData encode(String e) throws IOException {
 		
 		System.out.println("Encode " + e.length() + "bytes");
 		
@@ -75,7 +111,7 @@ public class HuffmanCoding {
 		}
 		
 		if (nodes.size() == 0) {
-			return;
+			return null;
 		}
 		
 		Node tree;
@@ -130,12 +166,18 @@ public class HuffmanCoding {
 			length = mEncodingLengthTable[c] ;
 			bos.write(encoded, length);
 		}
-		bos.flush();
-		bos.print();
+		bos.close();
+		
+		HuffmanCodingData ret = new HuffmanCodingData();
+		ret.trailingBits = bos.remainingBits;
+		ret.encodedData = bos.toByteArray();
+		ret.huffmanCodingTree = mTree;
+		return ret;
 	}
 	
 	public static void main(String args[]) throws IOException {
 		HuffmanCoding hc = new HuffmanCoding();
-		hc.encode("el perro de san roque no tiene rabo");
+		HuffmanCodingData data = hc.encode("el perro de san roque no tiene rabo");
+		String decoded = hc.decode(data);
 	}
 }
