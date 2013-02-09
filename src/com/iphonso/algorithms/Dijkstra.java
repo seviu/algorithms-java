@@ -19,7 +19,7 @@ public class Dijkstra {
 	 */
 	public class Vertex {
 		private final ArrayList<Connection> mConnections = new ArrayList<Connection>();
-		private boolean mVisited, mProcessed;
+		private boolean mVisited;
 		private int mWeight;
 		private final int mNr;
 		private Vertex mParent;
@@ -161,7 +161,7 @@ public class Dijkstra {
 		}
 		findShortestPath(minWeightNonVisitedVertex);
 	}
-	// We pass We pass /Users/sebastianvieira/Documents/workspace/Dijkstra/graph1.txt
+	// tests/dijkstra.txt
 
 	public static void main(String[] args) {
 		Dijkstra solution = new Dijkstra(System.in);
