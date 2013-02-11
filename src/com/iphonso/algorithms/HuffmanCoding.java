@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.*;
 
 import com.iphonso.algorithms.io.BitOutputStream;
-
+/*
+ * todo: intermediate nodes are also part of the encoding table and have to be considered (and put in the queue when discovered)
+ */
 public class HuffmanCoding {
 	private int mDistributionTable[];
 	private int mEncodingTable[];
@@ -27,24 +29,28 @@ public class HuffmanCoding {
 	}
 	private class Node  {
 		public char c;
-		public int weight; // if weight is < 0 then this node is an intermediate node
+		public int weight; // weight is its weight or the sum of the weight of the two children (for an intermediate node)
+		public boolean isIntermediateNode;
 		
 		public Node child0, child1;
 		
 		public Node() {
 			this.c = 0;
-			this.weight = -1;
+			this.weight = 0;
+			this.isIntermediateNode = true;
 		}
 
 		public Node(Node c0, Node c1) {
 			this();
 			child0 = c0;
 			child1 = c1;
+			this.weight = c0.weight + c1.weight;
 		}
 
 		public Node(char c, int weight) {
 			this.c = c;
 			this.weight = weight;
+			this.isIntermediateNode = false;
 		}
 	}
 	
@@ -78,7 +84,7 @@ public class HuffmanCoding {
 				} else {
 					currentNode = currentNode.child0;
 				}
-				if (currentNode.weight != -1) {
+				if (!currentNode.isIntermediateNode) {
 					ret.append(currentNode.c);
 					currentNode = huffmanCodingTree;
 				}
